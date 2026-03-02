@@ -1,0 +1,271 @@
+<!doctype html>
+<html lang="en" data-theme="dark">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width,initial-scale=1.0" />
+    <title>SkyPulse — Live Weather</title>
+    <link rel="stylesheet" href="style.css" />
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800;900&family=JetBrains+Mono:wght@400;500&display=swap"
+      rel="stylesheet"
+    />
+  </head>
+
+  <body>
+    <div id="loader">
+      <div class="lring"></div>
+      <div class="ltxt" id="loader-txt">LOADING WEATHER</div>
+    </div>
+
+    <div id="bg">
+      <div class="blob b1"></div>
+      <div class="blob b2"></div>
+      <div class="blob b3"></div>
+    </div>
+    <div id="wglow"></div>
+    <div class="strwrap" id="stars"></div>
+    <div class="rwrap" id="rain"></div>
+    <div class="swrap" id="snow"></div>
+    <div id="thunder-overlay"></div>
+    <div class="toast" id="toast"></div>
+
+    <div class="shell">
+      <header class="hdr">
+        <div class="logo">
+          <div class="logo-box">⛅</div>
+          Sky<em>Pulse</em>
+          <em class="logo-live">LIVE</em>
+        </div>
+        <div class="hctrl">
+          <button class="hbtn" id="geo-btn" title="Use my location">
+            📍 <span>My Location</span>
+          </button>
+          <button class="hbtn" id="unit-btn">°C <span>/ °F</span></button>
+          <button class="hbtn" id="theme-btn">🌙 <span>Dark</span></button>
+          <button class="hbtn" id="refresh-btn">↻ <span>Refresh</span></button>
+        </div>
+      </header>
+
+      <div class="api-banner" id="api-banner">
+        <h3>🔑 Add Your OpenWeatherMap API Key</h3>
+        <p>
+          Get a <strong>free API key</strong> at
+          <a href="https://openweathermap.org/api" target="_blank"
+            >openweathermap.org</a
+          >
+          (takes ~2 minutes). Paste it below to enable real live weather data.
+          Your key is saved locally in your browser — never sent anywhere else.
+        </p>
+        <div class="api-input-row">
+          <input
+            class="api-input"
+            id="api-key-input"
+            type="text"
+            placeholder="Paste your API key here…  e.g. a1b2c3d4e5f6…"
+            autocomplete="off"
+          />
+          <button class="api-save-btn" id="api-save-btn">Save Key</button>
+        </div>
+      </div>
+
+      <div class="sbar">
+        <input
+          class="sinput"
+          id="sinput"
+          type="text"
+          placeholder="Search any city worldwide… e.g. London, Tokyo, Cairo"
+        />
+        <button class="sbtn" id="sbtn">Search</button>
+      </div>
+
+      <div class="recent-bar" id="recent-bar">
+        <span class="recent-label">Recent:</span>
+      </div>
+
+      <div class="error-card" id="error-card">
+        <span class="error-icon">⚠️</span>
+        <span class="error-msg" id="error-msg">Something went wrong.</span>
+        <span class="error-close" id="error-close">✕</span>
+      </div>
+
+      <div class="hero">
+        <div>
+          <div class="loc-row">
+            <div class="pulse-dot"></div>
+            <div class="city-name" id="cname">—</div>
+          </div>
+          <div class="city-sub">
+            <span id="ccountry">—</span>
+            <span class="clock" id="clock">--:--</span>
+            <span class="last-updated" id="last-updated"></span>
+          </div>
+          <div class="temp-row">
+            <div class="temp" id="tval">—</div>
+            <div class="temp-unit" id="tunit">°C</div>
+          </div>
+          <div class="cond-badge" id="cbadge">— loading —</div>
+          <div class="hero-pills">
+            <div class="pill">🌡️ Feels <strong id="pfeels">—</strong></div>
+            <div class="pill">↑ High <strong id="phi">—</strong></div>
+            <div class="pill">↓ Low <strong id="plo">—</strong></div>
+            <div class="pill">👁 Vis <strong id="pvis">—</strong></div>
+            <div class="pill">💧 Dew <strong id="pdew">—</strong></div>
+          </div>
+        </div>
+        <div class="icon-side">
+          <div class="big-icon" id="bicon">⛅</div>
+          <div class="sun-strip">
+            <div class="sun-row">
+              <div>🌅 <span class="sun-val" id="sr">--:--</span></div>
+              <div>🌇 <span class="sun-val" id="ss">--:--</span></div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="sgrid">
+        <div class="stile" style="--ta: var(--sky)">
+          <div class="thdr">
+            <span class="tlbl">Humidity</span><span class="tico">💧</span>
+          </div>
+          <div class="tval" id="thum">—<span>%</span></div>
+          <div class="tbar">
+            <div class="tbar-f" id="bhum" style="width: 0%"></div>
+          </div>
+          <div class="tsub" id="shum">—</div>
+        </div>
+        <div class="stile" style="--ta: var(--violet)">
+          <div class="thdr">
+            <span class="tlbl">Wind</span><span class="tico">💨</span>
+          </div>
+          <div class="tval" id="twin">—<span></span></div>
+          <div class="tbar">
+            <div
+              class="tbar-f"
+              id="bwin"
+              style="width: 0%; background: var(--violet)"
+            ></div>
+          </div>
+          <div class="tsub" id="swin">—</div>
+        </div>
+        <div class="stile" style="--ta: var(--amber)">
+          <div class="thdr">
+            <span class="tlbl">Pressure</span><span class="tico">🌡️</span>
+          </div>
+          <div class="tval" id="tpres">—<span> hPa</span></div>
+          <div class="tbar">
+            <div
+              class="tbar-f"
+              id="bpres"
+              style="width: 0%; background: var(--amber)"
+            ></div>
+          </div>
+          <div class="tsub" id="spres">—</div>
+        </div>
+        <div class="stile" style="--ta: var(--mint)">
+          <div class="thdr">
+            <span class="tlbl">Cloudiness</span><span class="tico">☁️</span>
+          </div>
+          <div class="tval" id="tcld">—<span>%</span></div>
+          <div class="tbar">
+            <div
+              class="tbar-f"
+              id="bcld"
+              style="width: 0%; background: var(--mint)"
+            ></div>
+          </div>
+          <div class="tsub" id="scld">—</div>
+        </div>
+      </div>
+
+      <div class="shdr">
+        <span class="slbl">Hourly Forecast</span>
+        <div class="sline"></div>
+      </div>
+      <div class="hscroll-wrap">
+        <div class="hrow" id="hrow"></div>
+      </div>
+
+      <div class="shdr">
+        <span class="slbl">5-Day Forecast</span>
+        <div class="sline"></div>
+      </div>
+      <div class="frow" id="frow"></div>
+
+      <div class="twocol">
+        <div class="panel">
+          <div class="ptitle">🧭 Wind Details</div>
+          <div class="wlayout">
+            <div class="compass">
+              <div class="cring"></div>
+              <span class="cd cn2">N</span><span class="cd cs2">S</span>
+              <span class="cd ce2">E</span><span class="cd cw2">W</span>
+              <div class="cneedle" id="needle" style="--deg: 225deg">
+                <div class="nn"></div>
+                <div class="ns"></div>
+              </div>
+            </div>
+            <div class="wstats">
+              <div class="wrow">
+                <span class="wkey">Speed</span
+                ><span class="wval" id="wspd">—</span>
+              </div>
+              <div class="wrow">
+                <span class="wkey">Gusts</span
+                ><span class="wval" id="wgust">—</span>
+              </div>
+              <div class="wrow">
+                <span class="wkey">Direction</span
+                ><span class="wval" id="wdir">—</span>
+              </div>
+              <div class="bfbadge" id="wbf">—</div>
+            </div>
+          </div>
+        </div>
+        <div class="panel">
+          <div class="ptitle">☀️ UV Index &amp; Sun</div>
+          <div class="uvbig" id="uvnum">—</div>
+          <div class="uvlvl" id="uvlvl">—</div>
+          <div class="uvtrack">
+            <div class="uvcursor" id="uvc" style="left: 0%"></div>
+          </div>
+          <div class="uvscale">
+            <span>Low</span><span>Mod</span><span>High</span><span>V.High</span
+            ><span>Ext</span>
+          </div>
+          <div class="suninfogrid">
+            <div class="sunitem">
+              <div class="si-k">Sunrise</div>
+              <div class="si-v" id="sisr">—</div>
+            </div>
+            <div class="sunitem">
+              <div class="si-k">Sunset</div>
+              <div class="si-v" id="siss">—</div>
+            </div>
+            <div class="sunitem">
+              <div class="si-k">Golden Hour</div>
+              <div class="si-v" id="sigh">—</div>
+            </div>
+            <div class="sunitem">
+              <div class="si-k">Day Length</div>
+              <div class="si-v" id="sidl">—</div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="map-panel">
+        <div class="ptitle">🗺️ Location Map</div>
+        <div class="map-inner" id="map-inner">
+          <div class="map-placeholder">
+            <span class="map-icon">🗺️</span>
+            <span>Search a city to see it on the map</span>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <script src="script.js"></script>
+  </body>
+</html>
