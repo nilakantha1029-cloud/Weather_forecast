@@ -7,7 +7,7 @@ const LS_RECENT = "skypulse_recent";
 const LS_UNIT = "skypulse_unit";
 const LS_THEME = "skypulse_theme";
 
-let API_KEY = localStorage.getItem(LS_KEY_KEY) || "";
+let API_KEY = "285ef76e9e959017dfa94f08f7bf02a1";
 let isCel = localStorage.getItem(LS_UNIT) !== "F";
 let cTimer = null;
 let curLat = null;
@@ -154,23 +154,7 @@ function hideError() {
 }
 document.getElementById("error-close").onclick = hideError;
 
-function checkApiBanner() {
-  document.getElementById("api-banner").classList.toggle("hidden", !!API_KEY);
-}
 
-document.getElementById("api-save-btn").onclick = () => {
-  const val = document.getElementById("api-key-input").value.trim();
-  if (!val) {
-    toast("Please enter your API key.", true);
-    return;
-  }
-  API_KEY = val;
-  localStorage.setItem(LS_KEY_KEY, API_KEY);
-  checkApiBanner();
-  toast("✅ API key saved! Loading weather…");
-  const lastCity = localStorage.getItem(LS_CITY_KEY) || "London";
-  fetchByCity(lastCity);
-};
 
 function getRecent() {
   try {
@@ -466,10 +450,6 @@ function setLoading(loading) {
 }
 
 async function fetchByCity(cityName) {
-  if (!API_KEY) {
-    showError("Please add your OpenWeatherMap API key first.");
-    return;
-  }
   hideError();
   setLoading(true);
   try {
@@ -492,10 +472,6 @@ async function fetchByCity(cityName) {
 }
 
 async function fetchByCoords(lat, lon, cityHint = "") {
-  if (!API_KEY) {
-    showError("Please add your OpenWeatherMap API key first.");
-    return;
-  }
   hideError();
   setLoading(true);
   try {
@@ -709,18 +685,12 @@ window.addEventListener("load", async () => {
   if (!isCel)
     document.getElementById("unit-btn").innerHTML = "°F <span>/ °C</span>";
 
-  checkApiBanner();
   renderRecent();
 
   setTimeout(
     () => document.getElementById("loader").classList.add("gone"),
     600,
   );
-
-  if (!API_KEY) {
-    toast("👋 Add your free OpenWeatherMap API key to get started!");
-    return;
-  }
 
   if (navigator.geolocation) {
     document.getElementById("loader-txt").textContent = "DETECTING LOCATION";
@@ -729,13 +699,15 @@ window.addEventListener("load", async () => {
         await fetchByCoords(pos.coords.latitude, pos.coords.longitude);
       },
       async () => {
-        const last = localStorage.getItem(LS_CITY_KEY) || "London";
+        const last = localStorage.getItem(LS_CITY_KEY) || "Pune";
         await fetchByCity(last);
       },
       { timeout: 5000, maximumAge: 300000 },
     );
   } else {
-    const last = localStorage.getItem(LS_CITY_KEY) || "London";
+    const last = localStorage.getItem(LS_CITY_KEY) || "Pune";
     await fetchByCity(last);
   }
 });
+
+
